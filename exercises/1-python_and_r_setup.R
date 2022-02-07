@@ -350,6 +350,13 @@ add_4(X2)
 
 # 6. Using R in Python Code ====================================================
 
-# See 1-python_and_r_setup.py File
+# you should start by installing rpy2
+reticulate::conda_install(envname  = siop_env,
+                          packages = "rpy2",
+                          pip      = TRUE)
 
-# WANT ABOUT 300 LINES OF CODE
+# ... this feels a bit odd honestly :)
+
+# note: installing using pip works better than installing using conda (for me)
+
+# See 1-python_and_r_setup.py File
