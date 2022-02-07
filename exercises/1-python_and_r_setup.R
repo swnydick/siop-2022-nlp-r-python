@@ -39,7 +39,8 @@ Sys.unsetenv("RETICULATE_PYTHON")
 
 # If you do nothing? Then reticulate will go through a complicated algorithm to
 # pick the "appropriate" version of python. This can be boiled down to ...
-# (see https://github.com/rstudio/reticulate/blob/main/R/config.R)
+# (see https://github.com/rstudio/reticulate/blob/main/R/config.R or
+#  https://rstudio.github.io/reticulate/articles/versions.html for help)
 # - 1. USE THE FIRST ONE OF THESE AUTOMATICALLY
 #     a. Python already initialized
 #     b. RETICULATE_PYTHON environment variable set
@@ -127,8 +128,10 @@ reticulate::py_discover_config()
 reticulate::py_config()
 
 # trying to activate FIRST environment again
-reticulate::use_condaenv(siop_env)                   # doesn't work
-reticulate::use_condaenv(siop_env, required = FALSE) # doesn't work (hidden)
+reticulate::use_condaenv(condaenv = siop_env, # doesn't work
+                         required = TRUE)
+reticulate::use_condaenv(condaenv = siop_env, # doesn't work (hidden)
+                         required = FALSE)
 reticulate::py_discover_config()
 
 # restart R and initialize environment
@@ -151,9 +154,11 @@ reticulate::py_discover_config()
 #       environment variable, and you cannot change environment. Need to use
 #       renv::use_python and NOT reticulate::use_condaenv!
 # see:  https://rstudio.github.io/renv/articles/python.html
-# reticulate::conda_create("blah")
-# reticulate::use_condaenv("blah", required = TRUE) # works ... NO warning
-# reticulate::py_discover_config()                  # still OLD version
+# reticulate::conda_create(condaenv = "blah", # doesn't work ... but error!
+#                          required = NULL)
+# reticulate::use_condaenv(condaenv = "blah", # doesn't work ... NO warning
+#                          required = TRUE)
+# reticulate::py_discover_config()            # still OLD version
 
 # 4.Using Python and R Code ====================================================
 
@@ -227,12 +232,12 @@ Y                                                  # NOW it works!
 # note: sometimes reticulate doesn't listen, then it's best to restart R (manually)!
 
 # your variable is a pointer to a python object, so will update if python does
-Z        <- X # original object
-Z             # original x object
-X$sort()      # sort in place
-X             # is updated (in python)
-Y             # is not updated (in R)
-Z             # is updated (in python)
+Z     <- X # original object
+Z          # original x object
+X$sort()   # sort in place
+X          # is updated (in python)
+Y          # is not updated (in R)
+Z          # is updated (in python)
 
 # you can chain operations
 X$cumsum()$mean()
@@ -253,6 +258,95 @@ reticulate::py_run_string(code    = "Z2 = r.X2 + r.Y2", # works
 #   to R when needed
 
 # but ... you generally want to use convert = FALSE and manually convert later!
+
+## d. Indexing Arrays ----------------------------------------------------------
+
+# you can index Python vectors JUST like you would in R (sort of)
+py_vec <- np$array(1:4)               # vector in python (see above)
+py_vec[1]                             # works, but uses 0-indexing: SECOND entry
+py_vec[0:2]                           # slicing works too
+
+# you need to use different indexing to slice into matrices
+py_mat <- np$array(matrix(1:8, 4, 2)) # matrix in python (4 x 2)
+
+# --> row indexing
+py_mat[0]                             # first row
+py_mat[[0]]                           # can also use double indexing here
+np$take(py_mat, 0L, 0L)               # OR the take function from numpy
+# py_mat[0, ]                         # cannot use R or python indexing
+# py_mat[0, :]
+# py_mat[0, 0:1]                      # does not work
+
+# --> column indexing
+np$take(py_mat, 1L, 1L)               # second column
+# py_mat[ , 0]                        # does not work
+# py_mat[:, 0]                        # does not work
+# py_mat[0:3, 0]                      # does not work
+
+# --> element indexing
+py_mat[0][1]                          # [1, 2] element
+np$take(py_mat, 1L)                   # works, but can get complicated (row-major order)
+# py_mat[0, 1]                        # does not work
+
+# how do you index data.frames in python?
+reticulate::conda_install(envname  = siop_env,
+                          packages = "pandas")
+pd     <- reticulate::import(module  = "pandas",
+                             convert = FALSE)
+py_df  <- pd$DataFrame(
+  data = data.frame(
+    x = 1L:4L, 
+    y = letters[1:4])
+)
+py_df["x"]                          # name indexing still works
+py_df[["x"]]
+# py_df[0]                          # number indexing no longer works on entire df
+py_df["x"][0]                       # but does work on single column of df
+
+py_df$iloc[0:2]                     # use iloc to slice rows (in brackets)
+
+# note: if your R object converts to a python object in a module you haven't
+#       yet installed, print the R object, Error, and not generally tell you
+#       exactly the issue
+n       <- 5
+sp_mat  <- Matrix::sparseMatrix(
+  i = sample(n, n),
+  j = sample(n, n)
+)
+
+# will not really work
+reticulate::r_to_py(sp_mat) # what's the error?
+
+# you need to install scipy to make this work
+reticulate::conda_install(envname  = siop_env,
+                          packages = "scipy")
+
+# NOW it will work
+reticulate::r_to_py(sp_mat) # oh ... needed to install scipy!
+
+## e. Writing Functions --------------------------------------------------------
+
+# you can technically create python wrappers to functions
+add_2  <- reticulate::r_to_py(function(x){return(x + 2)})
+add_2(X2) # does not work on a python object
+add_2(2)  # does not work on an R object
+
+# it would be better to write the functions in python, and then pull them into R
+py_str <- "
+def add_2(x):
+  return(x + 2)
+"
+
+add_2  <- reticulate::py_run_string(py_str)$add_2
+
+add_2(X2) # can use a Python object by itself
+add_2(2)  # will convert an R object into a Python object
+
+# you can also write python in a separate file and use reticulate::py_run_file
+# to source that code, which also returns the main python environment
+add_4  <- reticulate::py_run_file("exercises/py_run_4.py")$add_4
+
+add_4(X2)
 
 # 6. Using R in Python Code ====================================================
 
