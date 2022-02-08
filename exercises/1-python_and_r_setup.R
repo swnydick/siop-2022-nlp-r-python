@@ -355,6 +355,10 @@ reticulate::conda_install(envname  = siop_env,
                           packages = "rpy2",
                           pip      = TRUE)
 
+# i also tend to use spyder for data analysis (more RStudio feel than other IDEs)
+reticulate::conda_install(envname  = siop_env,
+                          packages = "spyder")
+
 # ... this feels a bit odd honestly :)
 
 # note: installing using pip works better than installing using conda (for me)
