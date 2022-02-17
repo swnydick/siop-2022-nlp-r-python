@@ -105,7 +105,8 @@ robjects.globalenv["vec_r"].r_repr() # now works (is IN R!!!)
 vec_py = robjects.globalenv["vec_r"]
 
 vec_py[0]    # first element
-vec_py[2:]   # third element
+vec_py[2:3]  # third element
+vec_py[2:]   # third element to last element
 vec_py[:-1]  # all but last element
 vec_py[::-1] # reverse
 
