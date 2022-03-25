@@ -18,12 +18,14 @@ require(tfhub)
 require(tm)
 
 
-
 # run once and restart R session!
 # this will set up all the dependencies you need to run keras and sentiment.ai
 # install_sentiment.ai()
 
+# initialise the environment
 init_sentiment.ai()
+
+
 # source tf hub py function
 reticulate::source_python("exercises/get_embedder.py")
 
@@ -32,6 +34,7 @@ embedder <- load_language_model("https://tfhub.dev/google/universal-sentence-enc
 # OR use tfhub package (both do the same thing and return python functions)
 # difference is tfhub doesn't let you specify where to cache the model! 
 # embedder <- tfhub::hub_load("https://tfhub.dev/google/universal-sentence-encoder/4")
+# For large datasets, sentiment.ai::embed_text() has batch control
 
 # prep the data we will use
 
@@ -56,7 +59,7 @@ rownames(embeddings) <- words
 embeddings[, 1:6]
 
 # find similaritry
-sentiment.ai::cosine(embeddings, embeddings)
+sentiment.ai::cosine(embeddings)
 
 # To get ranked matches
 matched <- sentiment.ai::cosine_match(embeddings, embeddings)
@@ -78,15 +81,17 @@ best_matches |>
   geom_segment(aes(xend = target, 
                    y = 0, 
                    yend = isimilarity),
-               arrow = arrow(length = unit(0.5, "cm")),
-               color = "#00634F") +
+               arrow = arrow(length = unit(0.5, "cm"), 
+                             type = "closed"),
+               color = "#00634F",
+               size = 1.2) +
   geom_text(aes(label = reference), 
             size = 5, 
             hjust = -0.2, 
             color = "#568E30") +
   coord_flip() +
   theme_void() + 
-  expand_limits(y=c(0, 1)) +
+  expand_limits(y=c(0, 1.1)) +
   theme(axis.text.y = element_text(size = 12, 
                                    face = "bold", 
                                    hjust = 1.2, 
@@ -118,7 +123,6 @@ tweet_embeddings <- embedder(airline_tweets$text) |> as.matrix()
 # Now, create matrix of term counts to compare against embeddings
 # Function and explanation is in make_corpus.R
 # code used last year!
-
 source("exercises/make_corpus.R")
 
 # create a corpus per row of text in the data. a corpus is a format for storing
@@ -281,8 +285,6 @@ lex_predictions <- sentiment_by(get_sentences(test_tweets),
 
 lex_cor         <- cor(lex_predictions, y_test)
 
-sai_predictions <- sentiment_score(test_tweets)
-cor(sai_predictions, y_test)
 # 4d. Evaluate ----------------------------------------------------------------- 
 
 
