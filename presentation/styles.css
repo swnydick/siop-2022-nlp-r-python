@@ -1,0 +1,61 @@
+
+html, body {
+  background-color: #d6d6d8;
+  color: #339966;
+}
+
+a:link {
+  color: #660066;
+}
+
+a:visited {
+  color: #660066; 
+}
+img {
+  max-width: 70%;
+}
+h1 {
+	font-family: "Open Sans";
+	font-size: 24px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 500;
+}
+h3 {
+	font-family: "Open Sans";
+	font-size: 14px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 500;
+}
+p {
+	font-family: "Open Sans";
+	font-size: 20px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+}
+blockquote {
+	font-family: "Open Sans";
+	font-size: 21px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+	line-height: 25px;
+}
+
+ul {
+    font-family: "Open Sans";
+	font-size: 20px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+}
+
+ol {
+    font-family: "Open Sans";
+	font-size: 20px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+}
