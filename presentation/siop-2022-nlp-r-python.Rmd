@@ -1,14 +1,17 @@
 ---
 title: "Natural Language Processing with R and Python"
 author:
-- "Steven Nydick"
-- "Ben Wiseman"
-- "Tristan Wisner"
+- Steven Nydick
+- Ben Wiseman
+- Tristan Wisner
 date: "April 29, 2022"
 output:
+  beamer_presentation: default
   slidy_presentation:
-    footer: "Copyright \u00A9 2022, Korn Ferry"
-    css: ['styles.css', 'https://fonts.googleapis.com/css?family=Open+Sans']
+    footer: Copyright © 2022, Korn Ferry
+    css:
+    - styles.css
+    - https://fonts.googleapis.com/css?family=Open+Sans
 ---
 
 ```{r setup, include=FALSE}
