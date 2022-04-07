@@ -6,12 +6,12 @@ author:
 - Tristan Wisner
 date: "April 29, 2022"
 output:
-  beamer_presentation: default
   slidy_presentation:
     footer: Copyright © 2022, Korn Ferry
     css:
     - styles.css
     - https://fonts.googleapis.com/css?family=Open+Sans
+  beamer_presentation: default
 ---
 
 ```{r setup, include=FALSE}
