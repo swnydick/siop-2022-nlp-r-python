@@ -13,15 +13,6 @@ require(caret)
 
 # 2. What is Keras? =================================================
 
-# Python API for deep learning. Can run on top of a number of deep learning
-# frameworks, most notably Tensorflow. Tensorflow is a framework for
-# performing operations on *tensors*, represented with *computational graphs*.
-# This framework is most famous/popular for implementing neural networks.
-
-# The R keras package provides an interface to the Python keras package.
-# When you run keras in R, it requires starting up a Python environment in
-# the background, where actual computations are done.
-
 # define a simple tensor in Keras
 set.seed(3125)
 a <- k_constant(matrix(sample(1:10, 6), 2, 3, byrow = TRUE)); a # this will take a few seconds as Keras starts
@@ -47,42 +38,6 @@ k_sigmoid(c)
 
 
 # 3. Neural Networks =================================================
-
-# Artificial neural networks (ANNs) are computational models conceptually 
-# similar and analogized to a brain. Basic building blocks are nodes ("neurons"),
-# connected with links ("synapses"). A basic neural network consists of 
-# an *input layer* of n_x nodes, some number (L) of *hidden layers* with n_h^[l]
-# nodes in the lth layer, and an *output layer* with n_y nodes. Commonly,
-# n_y can be 1 node (regression), 2 nodes (binary classification), or multiple
-# nodes (multi-class classification). There are more complex ANN architectures
-# that can output text, images, and sounds.
-#
-# In a basic feed-forward neural network, each hidden layer has a matrix
-# of *weights* (W^[l]) of dimension (n_h^[l], n_h^[l-1]) and *biases* (b^[l])
-# of dimension (n_h^[l], 1). In the first hidden layer, the second dimension
-# is n_x, matching the input vector. At each layer, we compute:
-#
-# z^[l] = W[l]*a^[l-1] + b[l],
-#
-# where a^[l-1] is the output vector from the previous layer, or in the case
-# of a^[0], the input x. 
-#
-# The layer's *activation function*, typically denoted as sigma, decides whether
-# the neuron "fires". Common activation functions include linear, logistic,
-# tanh, ReLU and RBF.
-#
-# Neural networks are trained by passing labeled training data through the 
-# net and comparing the output prediction y^ to the true y* by computing a 
-# cost function J. Then, moving backwards through the net adjusting the weights
-# biases using gradient descent, a process called *backpropagation*. 
-
-# Other topics/parameters not covered: connectedness, pruning, dropout, 
-# normalization, learning rate, momentum, pooling, many more!
-
-# Some complex NN architectures: Convolutional NNs (images), Recurrent NNs
-# (additional connections back to previous layers instead of just forward), 
-# long-short term memory (LSTM) models (natural language processing) 
-
 
 ### Implementing a basic feed-forward neural network for regression in R with Keras
 
@@ -243,14 +198,14 @@ compile(nn_class_model,
 # Train model
 
 nn_class_history <- fit(object          = nn_class_model, # the model
-                           x               = pi_x_train, # the training input 
-                           y               = pi_y_train,   # the training output
-                           batch_size      = 32,      # the batch size
-                           validation_data = list(pi_x_test, pi_y_test), # LIST of validation x, y
-                           epochs          = 50,       # transits of training data through algorithm
-                           shuffle         = TRUE,      # shuffle data before each epoch
-                           view_metrics    = TRUE,      # plot how it's doing
-                           verbose         = 1)         # progress bar
+                         x               = pi_x_train, # the training input 
+                         y               = pi_y_train,   # the training output
+                         batch_size      = 32,      # the batch size
+                         validation_data = list(pi_x_test, pi_y_test), # LIST of validation x, y
+                         epochs          = 50,       # transits of training data through algorithm
+                         shuffle         = TRUE,      # shuffle data before each epoch
+                         view_metrics    = TRUE,      # plot how it's doing
+                         verbose         = 1)         # progress bar
 
 print(nn_class_history)
 
@@ -263,10 +218,5 @@ confusionMatrix(y_pred_logm, pi_test[,9]) # note Accuracy, Kappa
 
 
 
-
-# 4. Transfer Learning =================================================
-
-
-# 5. Autoencoders =================================================
 
 

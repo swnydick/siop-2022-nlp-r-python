@@ -44,9 +44,10 @@ This demonstration requires the following R packages:
     - tensorflow
     - keras
     - ggplot2
+    - caret
+    - mlbench
 3. Natural Language Processing Section
     - All of the above ... plus
-    - caret
     - roperators
     - sentiment.ai
     - sentimentr
