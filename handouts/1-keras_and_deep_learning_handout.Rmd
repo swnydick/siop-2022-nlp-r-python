@@ -110,3 +110,10 @@ your model on your small dataset.
 
 # 5. Autoencoders
 
+An **autoencoder** is a type of ANN that learns a reduced-dimension representation, or *encoding* of
+unlabeled input data. The objective is to transform the input into a sparse, compressed, numerical encoding,
+which can then be *decoded* into a reconstruction of the input. 
+
+
+
+
