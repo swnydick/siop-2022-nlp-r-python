@@ -50,10 +50,10 @@ $$z^{[l]} = W^{[l]}a^{[l-1]} + b^{[l]}$$
 where $a^{[l-1]}$ is the output of the *activation functions* from the previous layer,
 or in the case of $a^{[0]}$, the input $x$. 
 
-The layer's activation function, denoted here as$a$, decides 
-whether the neuron "fires". Common activation functions include linear, logistic,
-tanh, ReLU and RBF. These are often quite simple functions; for example, the widely
-used Rectified Linear Unit (ReLU) function is simply $f(x) = max(0, x)$; that is;
+The layer's activation function, usually denoted as $g$ or $\sigma$, takes $z^{[l]}$
+as an input and decides  whether the neuron "fires". Common activation functions include
+linear, logistic, tanh, ReLU and RBF. These are often quite simple functions; for example,
+the widely used Rectified Linear Unit (ReLU) function is simply $g(z) = max(0, z)$; that is;
 the node "fires" when the input value is positive, but otherwise outputs 0.
 
 Briefly, neural networks are trained by passing labeled training data through the 
@@ -103,9 +103,22 @@ for each breed. Or, you could apply transfer learning by downloading a pre-train
 classification model and using this as the basis of your model. For example, ResNet50 is a
 50-layer CNN pre-trained on over a million images, and is one of many models available directly through
 Keras. You can then add any additional layers you need for your specific task, and proceed to train
-your model on your small dataset. 
+your model on your small dataset. This allows you to take advantage of previous model training
+efforts, and get a head start on your specific task.
 
-***Add language example & transition to autoencoders & embeddings here***
+This technique is especially useful for language models, where your training dataset is
+inevitably a small fraction of the vast range of human literary expression. Before beginning
+your text analytics task, it's helpful to have some pre-trained model parameters; a numerical
+representation of word relationships, where words with similar meaning are closer together in
+a vector space. Some well-known word embeddings include word2vec and GloVe (Global Vectors for
+Word Representation). More recent innovations such as BERT (Bidirectional Encoder Representations
+from Transformers) allow for the context of surrounding text to inform the representation of a
+word's meaning. The details of these models and approaches to training them are beyond the
+scope of this tutorial, but they tend to be quite large (millions of parameters), and use immense computational resources
+and massive datasets (such as large collections of books or Wikipedia articles). Additionally,
+much of the research in this area is quite recent (less than 10 years old), and is an area of
+continuous study and improvement. We will see and use a newer model which uses sentence-level
+embeddings, the Universal Sentence Encoder, in our final section. 
 
 
 # 5. Autoencoders
