@@ -70,8 +70,10 @@ ANN architectures include:
 
 * Convolutional NNs (CNNs): often used for image applications like object
 detection, classification, and machine-generated images
+
 * Recurrent NNs (RNNs): adds additional connections back to previous layers instead
 of just forward
+
 * Long-short term memory (LSTM) models: type of RNN that can "remember" previous
 dependencies in sequential data, like text or audio data. Capable of very effective
 text classification and prediction. For example, given an input like "She went to the
@@ -110,15 +112,15 @@ This technique is especially useful for language models, where your training dat
 inevitably a small fraction of the vast range of human literary expression. Before beginning
 your text analytics task, it's helpful to have some pre-trained model parameters; a numerical
 representation of word relationships, where words with similar meaning are closer together in
-a vector space. Some well-known word embeddings include word2vec and GloVe (Global Vectors for
-Word Representation). More recent innovations such as BERT (Bidirectional Encoder Representations
-from Transformers) allow for the context of surrounding text to inform the representation of a
-word's meaning. The details of these models and approaches to training them are beyond the
-scope of this tutorial, but they tend to be quite large (millions of parameters), and use immense computational resources
-and massive datasets (such as large collections of books or Wikipedia articles). Additionally,
-much of the research in this area is quite recent (less than 10 years old), and is an area of
-continuous study and improvement. We will see and use a newer model which uses sentence-level
-embeddings, the Universal Sentence Encoder, in our final section. 
+a vector space, known as **word embeddings**. Some well-known word embeddings include word2vec
+and GloVe (Global Vectors for Word Representation). More recent innovations such as
+BERT (Bidirectional Encoder Representations from Transformers) allow for the context of surrounding
+text to inform the representation of a word's meaning. The details of these models and approaches
+to training them are beyond the scope of this tutorial, but they tend to be quite large 
+(millions of parameters), and use immense computational resources and massive datasets
+(such as large collections of books or Wikipedia articles). Additionally, much of the research
+in this area is quite recent (less than 10 years old), and is an area of continuous study and improvement.
+We will see and use a newer model which uses sentence-level embeddings, the Universal Sentence Encoder, in our final section. 
 
 
 # 5. Autoencoders
@@ -127,6 +129,14 @@ An **autoencoder** is a type of ANN that learns a reduced-dimension representati
 unlabeled input data. The objective is to transform the input into a sparse, compressed, numerical encoding,
 which can then be *decoded* into a reconstruction of the input. 
 
+![Simplified Autoencoder Architecture](autoencoder.png){width=70%}
 
+Autoencoders are trained to minimize some loss function on the difference between the original input and the reconstructed output,
+such as squared errors:
 
+$$\min_{\mathbf{x}, \mathbf{x'}} L(\mathbf{x}, \mathbf{x'}) = \min_{\mathbf{x}, \mathbf{x'}} ||\mathbf{x} - \mathbf{x'}||^{2}$$
 
+The degree of compression depends on the level of the researcher's tolerance for reconstruction error as well as
+model architecture choices such as the dimensions of the encoding layers and degree of sparsity enforced. In the next section,
+we will be working with conceptually similar word embeddings, where you can think of the input as the training dictionary,
+and the encoding as a fixed-length (say, 512) numerical vector for each input word.
