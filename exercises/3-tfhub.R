@@ -17,7 +17,6 @@ require(SnowballC) # for tm
 require(tfhub)
 require(tm)
 
-
 # run once and restart R session!
 # this will set up all the dependencies you need to run keras and sentiment.ai
 # install_sentiment.ai()
@@ -31,6 +30,7 @@ reticulate::source_python("exercises/get_embedder.py")
 
 # load python function
 embedder <- load_language_model("https://tfhub.dev/google/universal-sentence-encoder/4")
+
 # OR use tfhub package (both do the same thing and return python functions)
 # difference is tfhub doesn't let you specify where to cache the model! 
 # embedder <- tfhub::hub_load("https://tfhub.dev/google/universal-sentence-encoder/4")

@@ -30,9 +30,9 @@ set.seed(3125)
 a <- k_constant(matrix(sample(1:10, 6), 2, 3, byrow = TRUE)); a # this will take a few seconds as Keras/tf starts
 
 set.seed(3125)
-a <- k_constant(sample(1:10, 6), shape = c(2,3)); a             # equivalent
+a <- k_constant(sample(1:10, 6), shape = c(2, 3)); a             # equivalent
 
-b <- k_constant(sample(1:10, 6), shape = c(3,2)); b
+b <- k_constant(sample(1:10, 6), shape = c(3, 2)); b
 
 # perform some basic tensor operations
 k_dot(a, b)
@@ -42,12 +42,12 @@ k_min(a)
 k_max(a)
 
 # generate random values
-c <- k_random_normal(c(3,3)); c
+c <- k_random_normal(c(3, 3)); c
 
 # quick look at some activation functions (see next section)
-k_relu(c)
-k_tanh(c)
-k_sigmoid(c)
+k_relu(c)     # less than 0 set to 0
+k_tanh(c)     # [e^(2x) - 1]/[e^(2x) + 1]
+k_sigmoid(c)  # e^x / (1 + e^x)
 
 
 # 3. Neural Networks =================================================

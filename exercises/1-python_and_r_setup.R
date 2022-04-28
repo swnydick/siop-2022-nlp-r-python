@@ -198,6 +198,8 @@ reticulate::py_run_string("y = 2 + 2")$y # same as reticulate::py
 
 # you can install modules (doesn't default into current environment?)
 reticulate::conda_install(packages = "numpy")      # bad (see "Package Plan")
+reticulate::import(module = "numpy")               # doesn't work!
+
 reticulate::conda_install(envname  = siop_env,
                           packages = "numpy")      # good
 reticulate:::condaenv_resolve()                    # default env to install
