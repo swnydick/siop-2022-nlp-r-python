@@ -5,6 +5,12 @@
 # 2022-04-15                            #
 #########################################
 
+# Some links
+# - https://keras.rstudio.com/articles/guide_keras.html
+# - https://ruder.io/optimizing-gradient-descent/
+# - https://towardsdatascience.com/activation-functions-neural-networks-1cbd9f8d91d6
+# - https://towardsdatascience.com/the-unreasonable-progress-of-deep-neural-networks-in-natural-language-processing-nlp-374443b21b00
+
 # 1. Setup / Required Packages =================================================
 
 # environment name for SIOP workshop (same as before)
