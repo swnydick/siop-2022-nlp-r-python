@@ -22,13 +22,17 @@ require(tm)
 # install_sentiment.ai()
 
 # initialise the environment (can use conda or virtualenv or auto)
+# (this also sets the cache directory, so load_language_model doesn't need it set)
 init_sentiment.ai(envname = "r-sentiment-ai",
                   method  = "conda")
 
 # source tf hub py function
 reticulate::source_python("exercises/get_embedder.py")
 
-# load python function
+# load python function (a model that works, english large model)
+# - this was developed to reproduce text
+# - we are taking the middle part (the embeddings) and using that as a numerical
+#   representation of the text, as a source of transfer learning to our problem
 embedder <- load_language_model("https://tfhub.dev/google/universal-sentence-encoder/4")
 
 # OR use tfhub package (both do the same thing and return python functions)
@@ -46,7 +50,7 @@ tweet_sentiments <- sentiment.ai::airline_tweets$airline_sentiment |>
 
 # 2. Explore Embeddings ========================================================
 
-# test!
+# test! (add cast of Labyrinth if you really want to check ... homework!??!)
 words <- c("Dog", "David Bowie", "Magic Dance", "Good", "Lady Gaga", "Labrador")
 
 # use python function (becomes python tf.Tensor object)
@@ -58,8 +62,8 @@ rownames(embeddings) <- words
 
 embeddings[, 1:6]
 
-# find similaritry
-sentiment.ai::cosine(embeddings)
+# find similaritry (see which embeddings are close to other embeddings)
+sentiment.ai::cosine(embeddings) # dot product of rescaled columns with each other
 
 # To get ranked matches
 matched <- sentiment.ai::cosine_match(embeddings, embeddings)
@@ -69,22 +73,27 @@ best_matches <- matched[rank == 2]
 best_matches
 
 # Can plot (invert similarity! & remove symmetric duplicates)
-best_matches[, isimilarity := 1 - similarity]
+best_matches[, distance := 1 - similarity] # things closer to 0 are closer
 
+# sorting the names to keep only the unique pairs (pastes by alphabetical order)
+# (not fully proof but works for this example)
 psort        <- function(x, y) paste(sort(c(chr(x), chr(y))), collapse = " ")
-best_matches[, reps := psort(target, reference), by = "target"]
+best_matches[, pairs := psort(target, reference), by = "target"]
 
-best_matches <- best_matches[!duplicated(reps)]
+best_matches <- best_matches[!duplicated(pairs)]
+
+# top is the worst and bottom is the best OF the optimal pairings
 data.table::setorder(best_matches, similarity)
 
 # is target not guaranteed to be duplicated? then you should use unique(target)!
 best_matches[, target := factor(target, levels = target)]
 
+# going from a to be but the length depends on the distance
 best_matches |>
-  ggplot(aes(x = target, y = isimilarity)) + 
+  ggplot(aes(x = target, y = distance)) + 
   geom_segment(aes(xend = target, 
                    y    = 0, 
-                   yend = isimilarity),
+                   yend = distance),
                arrow = arrow(length = unit(0.5, "cm"), 
                              type   = "closed"),
                color = "#00634F",
@@ -103,7 +112,7 @@ best_matches |>
         plot.margin = margin(1, 1.5, 1, 1.5, "cm"))
 
 
-# can even plot text similarity with a PCA (similar text shuold be closer in space)!
+# can even plot text similarity with a PCA (similar text should be closer in space)!
 embeddings |> 
   t() |>
   princomp() |>
@@ -114,6 +123,8 @@ embeddings |>
 
 # 3rd dimension probably matters here!
 
+# 3. Tweet Text Embeddings =====================================================
+
 # Now to embed airline tweets
 
 # embed text. 
@@ -122,7 +133,7 @@ embeddings |>
 tweet_embeddings <- embedder(airline_tweets$text) |> as.matrix()
 
 
-# 3. Creating Corpus/IDF =======================================================
+# 4. Creating Corpus/IDF =======================================================
 
 # Now, create matrix of term counts to compare against embeddings
 # Function and explanation is in make_corpus.R
@@ -141,8 +152,8 @@ text_corpus <- make_corpus(airline_tweets$text)
 # How we have set up our data thus far is inline w/ the bag of words approach.
 
 # We have created Term Frequency matrix
-#  - Often times for modeling, we createsomething called the Term
-#    Frequency - Inverse Document Frequency Matrix.
+# - Often times for modeling, we createsomething called the Term
+#   Frequency - Inverse Document Frequency Matrix.
 # - This matrix weights Term Frequency by how prevalent they are in the corpora
 #   (text strings).
 # - If the word shows up often in and across the documents - they get less
@@ -150,7 +161,7 @@ text_corpus <- make_corpus(airline_tweets$text)
 # - A good overview can be found at: http://www.tfidf.com/
 
 # Note: Sparse terms are removed - here we want as close to 512 features as possible
-#       of comments
+#       of comments (word needs to be included .3% of the time here)
 tweet_tfidf <- DocumentTermMatrix(x       = text_corpus, 
                                   control = list(weighting = weightTfIdf)) |>
                removeSparseTerms(sparse = .99699) |>
@@ -160,7 +171,7 @@ tweet_tfidf <- DocumentTermMatrix(x       = text_corpus,
 tweet_tfidf[1:10, 1:10]
 
 
-# 4. Create Models==============================================================
+# 5. Create Models==============================================================
 
 # Here we will test 3 different approaches to model tweet sentiment
 
@@ -176,7 +187,8 @@ tensorflow::set_random_seed(246658, disable_gpu = TRUE) # for tensorflow (via py
 
 
 # now make a 70:30 test/train split with caret
-# use logical condition to make test/train more fair
+# use logical condition to make test/train more fair (stratified random sampling)
+# the p is the proportion in the training sample
 train_idx <- caret::createDataPartition(y    = tweet_sentiments == 1,
                                         p    = 0.7,
                                         list = FALSE)
@@ -194,7 +206,7 @@ idf_train <- tweet_tfidf[train_idx, ]
 idf_test  <- tweet_tfidf[-train_idx, ]
 
 
-# 4a Embedding model -----------------------------------------------------------
+# 5a Embedding model -----------------------------------------------------------
 
 # USE embeddings, which are 512 dimensional
 emb_input  <- layer_input(shape = 512,
@@ -213,7 +225,10 @@ emb_hidden <- emb_input |>
                           activation = "tanh", 
                           name       = "hidden1")
 
-# Output - tanh sigmoid for probabilities (often outperforms logistic sigmoid)
+# Output - tanh sigmoid for probabilities
+# - often outperforms logistic sigmoid
+# - also allows for -1 to 1 output
+# - it's slightly more computationally intensive (only an issue for huge nnets)
 emb_out   <- layer_dense(object     = emb_hidden,
                          units      = 1, 
                          activation = "tanh",
@@ -223,6 +238,8 @@ emb_out   <- layer_dense(object     = emb_hidden,
 emb_model <- keras_model(emb_input, emb_out)
 
 # compile model
+# - adam runs really well in parallel
+# - MSE tends to work well within loss functions
 compile(emb_model,
         optimizer = optimizer_adam(),
         loss      = "mean_squared_error",
@@ -231,6 +248,8 @@ compile(emb_model,
 
 
 # sometimes the callbacks argument will not work
+# - blue is training data
+# - green is validation data (indicates lack of overfitting)
 emb_history <- fit(object          = emb_model, # the model
                    x               = emb_train, # the training input 
                    y               = y_train,   # the training output
@@ -248,7 +267,7 @@ print(emb_history)
 emb_predictions <- predict(emb_model, emb_test) # use NEW data in prediction
 emb_cor         <- cor(emb_predictions, y_test) # cor output of prediction with truth
 
-# 4b. TFIDF model --------------------------------------------------------------
+# 5b. TFIDF model --------------------------------------------------------------
 
 # USE inverse term document matrix (which are number of words dimensional)
 idf_input  <- layer_input(shape = ncol(tweet_tfidf),
@@ -299,7 +318,7 @@ print(idf_history)
 idf_predictions <- predict(idf_model, idf_test)
 idf_cor         <- cor(idf_predictions, y_test)
 
-# 4c Lexical Sentiment analysis ------------------------------------------------
+# 5c Lexical Sentiment analysis ------------------------------------------------
 
 # the test output (using the caret train/test breakdown from earlier)
 test_tweets     <- airline_tweets$text[-train_idx]
@@ -315,7 +334,7 @@ lex_cor         <- cor(lex_predictions, y_test)
 # NOTE: this method does not use the training data in the model at all, as 
 #       we're using the sentiment FROM sentimentr
 
-# 4d. Evaluate ----------------------------------------------------------------- 
+# 5d. Evaluate ----------------------------------------------------------------- 
 
 # putting together a data.frame with the performance of each model
 eval_df <- data.frame(model = c("Embedding","IDF matrix", "Lexical"),
