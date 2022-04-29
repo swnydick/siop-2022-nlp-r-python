@@ -118,7 +118,7 @@ nn_reg_hidden <- nn_reg_input |>
               activation = "relu", 
               name       = "hidden2") 
 
-# Output layer
+# Output layer (see activation, think "link function")
 nn_reg_out   <- layer_dense(object     = nn_reg_hidden,
                             units      = 1, 
                             activation = "linear",
@@ -221,7 +221,7 @@ nn_class_model <- keras_model(nn_class_input, nn_class_out)
 
 summary(nn_class_model)
 
-# Compile model
+# Compile model (just log-likelihood, divided by N, and negated)
 compile(nn_class_model,
         optimizer = optimizer_adam(),
         loss      = "binary_crossentropy",

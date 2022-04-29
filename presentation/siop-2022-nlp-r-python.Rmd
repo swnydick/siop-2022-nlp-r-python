@@ -141,4 +141,22 @@ How will we do this? We will ...
 
 You can think of this as a crash course in using Python with `R`, running neural nets, and using predictive modeling on text data.
 
+## Neural Net Translations
+
+```{r, echo=FALSE, warning=FALSE}
+library(magrittr)
+map <- tibble::tribble(
+  ~"When You See...",          ~"Think...",
+  "Activation",                "Link Function",
+  "Binary Cross-Entropy Loss", "Log-Likelihood (Negated)",
+  "Epochs",                    "Iterations",
+  "Dense Layer",               "Regression Model",
+  "Weights",                   "Slopes",
+  "Bias",                      "Intercepts"
+)
+
+kableExtra::kbl(map) %>%
+  kableExtra::kable_classic()
+```
+
 ## Exercises
